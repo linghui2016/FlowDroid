@@ -1676,4 +1676,8 @@ public class SetupApplication {
 		this.valueProvider = valueProvider;
 	}
 
+	public MultiMap<SootClass, CallbackDefinition> getCallbackMethods() {
+		return this.callbackMethods;
+	}
+
 }

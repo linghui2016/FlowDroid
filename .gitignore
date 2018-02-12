@@ -1,0 +1,12 @@
+
+\.project
+
+\.settings/
+
+soot-infoflow-android/\.classpath
+
+soot-infoflow-cmd/\.classpath
+
+soot-infoflow-summaries/\.classpath
+
+soot-infoflow/\.classpath
