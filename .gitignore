@@ -10,3 +10,10 @@ soot-infoflow-cmd/\.classpath
 soot-infoflow-summaries/\.classpath
 
 soot-infoflow/\.classpath
+
+soot-infoflow-summaries/build/
+soot-infoflow-summaries/target/
+/.metadata
+/.recommenders
+.idea/
+*.iml
