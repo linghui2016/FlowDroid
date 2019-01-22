@@ -1314,6 +1314,7 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
 	 */
 	public InfoflowResults runInfoflow(ISourceSinkDefinitionProvider sourcesAndSinks) {
 		// Reset our object state
+		config.setLogSourcesAndSinks(true);
 		this.collectedSources = config.getLogSourcesAndSinks() ? new HashSet<Stmt>() : null;
 		this.collectedSinks = config.getLogSourcesAndSinks() ? new HashSet<Stmt>() : null;
 		this.sourceSinkProvider = sourcesAndSinks;

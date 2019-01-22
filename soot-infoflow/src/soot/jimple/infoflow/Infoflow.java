@@ -480,7 +480,7 @@ public class Infoflow extends AbstractInfoflow {
 						performanceData.setTaintPropagationSeconds(0);
 					long beforeTaintPropagation = System.nanoTime();
 
-					forwardSolver.solve();
+					// forwardSolver.solve();
 
 					// Not really nice, but sometimes Heros returns before all
 					// executor tasks are actually done. This way, we give it a
@@ -556,7 +556,7 @@ public class Infoflow extends AbstractInfoflow {
 					memoryWatcher.removeSolver((IMemoryBoundedSolver) forwardSolver);
 					forwardSolver.cleanup();
 					forwardSolver = null;
-					forwardProblem = null;
+					// forwardProblem = null;
 
 					// Remove the alias analysis from memory
 					aliasing = null;
