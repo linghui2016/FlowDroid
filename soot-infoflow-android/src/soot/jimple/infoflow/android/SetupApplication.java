@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -31,6 +32,7 @@ import org.xml.sax.SAXException;
 import org.xmlpull.v1.XmlPullParserException;
 
 import heros.solver.Pair;
+import soot.FastHierarchy;
 import soot.G;
 import soot.Main;
 import soot.PackManager;
@@ -105,6 +107,12 @@ import soot.util.HashMultiMap;
 import soot.util.MultiMap;
 
 public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
+
+	// Flag for lsp dmoe
+	private boolean lspDemo = false;
+	private String supportJarDir = "E:\\Git\\DroidBench\\eclipse-project\\Lifecycle\\ActivityLifecycle1\\libs\\android-support-v4.jar";
+	private String androidSourceCodePath;
+	private Consumer<String> sourceCodeConsumer;
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -1033,11 +1041,12 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
 		final String androidJar = config.getAnalysisFileConfig().getAndroidPlatformDir();
 		final String apkFileLocation = config.getAnalysisFileConfig().getTargetAPKFile();
 		final String additionalClasspath = config.getAnalysisFileConfig().getAdditionalClasspath();
-
 		String classpath = forceAndroidJar ? androidJar : Scene.v().getAndroidJarPath(androidJar, apkFileLocation);
 		if (additionalClasspath != null && !additionalClasspath.isEmpty())
 			classpath += File.pathSeparator + additionalClasspath;
 		logger.debug("soot classpath: " + classpath);
+		if (lspDemo)
+			classpath += File.pathSeparator + supportJarDir;
 		return classpath;
 	}
 
@@ -1061,7 +1070,10 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
 		else
 			Options.v().set_output_format(Options.output_format_none);
 		Options.v().set_whole_program(true);
-		Options.v().set_process_dir(Collections.singletonList(apkFileLocation));
+		if (!lspDemo) {
+			Options.v().set_process_dir(Collections.singletonList(apkFileLocation));
+		} else
+			Options.v().set_process_dir(Collections.singletonList(supportJarDir));
 		if (forceAndroidJar)
 			Options.v().set_force_android_jar(androidJar);
 		else
@@ -1332,6 +1344,15 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
 			initializeSoot();
 		}
 
+		System.out.println("#Class: " + Scene.v().getClasses().size());
+
+		if (lspDemo) {
+			// load source code from wala front end
+			String sourceCodePath = getAndroidSourceCodePath();
+			sourceCodeConsumer.accept(sourceCodePath);
+		}
+		System.out.println("#Class: " + Scene.v().getClasses().size());
+		Scene.v().setFastHierarchy(new FastHierarchy());
 		// Perform basic app parsing
 		try {
 			parseAppResources();
@@ -1361,11 +1382,35 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
 
 		// Write the results to disk if requested
 		serializeResults(resultAggregator.getAggregatedResults(), resultAggregator.getLastICFG());
+		System.out.println("CallGraph: " + Scene.v().getCallGraph().size());
+		// SootMethod m = this.getDummyMainMethod();
+		// System.out.println(m.getActiveBody());
+		// Iterator<Edge> edge = Scene.v().getCallGraph().iterator();
+		// while (edge.hasNext()) {
+		// Edge e = edge.next();
+		// System.out.println(e.getSrc().toString() + "\n->" + e.getTgt().toString());
+		// System.out.println();
+		// }
+		// SootClass sc =
+		// Scene.v().getSootClassUnsafe("de.ecspride.ActivityLifecycle1");
+		// for (SootMethod m : sc.getMethods()) {
+		// System.out.println(m.getActiveBody());
+		// }
 
 		// We return the aggregated results
 		this.infoflow = null;
 		resultAggregator.clearLastResults();
 		return resultAggregator.getAggregatedResults();
+	}
+
+	/** Add for LSP Demo **/
+	private String getAndroidSourceCodePath() {
+		return androidSourceCodePath;
+	}
+
+	/** Add for LSP Demo **/
+	public void setAndroidSourceCodePath(String sourceCodePath) {
+		this.androidSourceCodePath = sourceCodePath;
 	}
 
 	/**
@@ -1767,6 +1812,11 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
 
 	public MultiMap<SootClass, CallbackDefinition> getCallbackMethods() {
 		return this.callbackMethods;
+	}
+
+	/** Add for LSP Demo **/
+	public void setSourceCodeConsumer(Consumer<String> sourceCodeConsumer) {
+		this.sourceCodeConsumer = sourceCodeConsumer;
 	}
 
 }

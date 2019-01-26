@@ -480,7 +480,7 @@ public class Infoflow extends AbstractInfoflow {
 						performanceData.setTaintPropagationSeconds(0);
 					long beforeTaintPropagation = System.nanoTime();
 
-					// forwardSolver.solve();
+					forwardSolver.solve();
 
 					// Not really nice, but sometimes Heros returns before all
 					// executor tasks are actually done. This way, we give it a
