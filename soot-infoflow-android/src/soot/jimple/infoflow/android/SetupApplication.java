@@ -114,7 +114,6 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
   private Set<String> sourceCodePath;// LSP
   private String androidJar;// LSP
   private Consumer<Set<String>> sourceCodeConsumer;// LSP
-
   private final Logger logger = LoggerFactory.getLogger(getClass());
 
   protected ISourceSinkDefinitionProvider sourceSinkProvider;
@@ -554,7 +553,6 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
     // Run the preprocessors
     for (PreAnalysisHandler handler : this.preprocessors)
       handler.onBeforeCallgraphConstruction();
-
     // Make sure that we don't have any weird leftovers
     releaseCallgraph();
 
@@ -563,6 +561,8 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
     if (config.getSootIntegrationMode() == SootIntegrationMode.UseExistingInstance)
       configureCallgraph();
 
+    // Soot couldn't resolve android.content.Intent correctly.
+    Scene.v().tryLoadClass("android.content.Intent", SootClass.HIERARCHY);
     // Construct the actual callgraph
     logger.info("Constructing the callgraph...");
     PackManager.v().getPack("cg").apply();
@@ -1085,14 +1085,12 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
     Options.v().set_soot_classpath(this.androidJar);
     Main.v().autoSetOptions();
     configureCallgraph();
-
+    Scene.v().loadNecessaryClasses();
     // Load whatever we need
     logger.info("Loading dex files...");
     logger.info("------------------LSP DEMO START PHASE 1------------------------------------");
     logger.info(
         "LSPDEMO: " + "Soot loads " + Scene.v().getClasses().size() + " classes from\n " + Scene.v().getSootClassPath());
-
-    Scene.v().loadNecessaryClasses();
 
     logger.info("LSPDEMO: " + Scene.v().getApplicationClasses().size() + " application classes in Scene");
     logger.info("------------------LSP DEMO END PHASE 1--------------------------------------");
@@ -1364,7 +1362,6 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
       logger.warn("No entry points");
       return null;
     }
-
     // In one-component-at-a-time, we do not have a single entry point
     // creator. For every entry point, run the data flow analysis.
     if (config.getOneComponentAtATime()) {
@@ -1375,7 +1372,6 @@ public class SetupApplication implements ITaintWrapperDataFlowAnalysis {
       }
     } else
       processEntryPoint(sourcesAndSinks, resultAggregator, -1, null);
-
     // Write the results to disk if requested
     serializeResults(resultAggregator.getAggregatedResults(), resultAggregator.getLastICFG());
 
