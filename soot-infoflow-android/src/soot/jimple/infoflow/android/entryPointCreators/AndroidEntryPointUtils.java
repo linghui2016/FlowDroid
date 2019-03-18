@@ -55,6 +55,24 @@ public class AndroidEntryPointUtils {
   }
 
   /**
+   * Check if currentClass is a subclass of accestorClass
+   * 
+   * @param currentClass
+   * @param ancestorClass
+   * @return
+   */
+  public boolean isSubClass(SootClass currentClass, SootClass ancestorClass) {
+    SootClass temp = currentClass;
+    while (temp.hasSuperclass()) {
+      temp = temp.getSuperclass();
+      if (temp.getType().equals(ancestorClass.getType())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Gets the type of component represented by the given Soot class
    * 
    * @param currentClass
@@ -67,54 +85,49 @@ public class AndroidEntryPointUtils {
 
     // Check the type of this class
     ComponentType ctype = ComponentType.Plain;
-
     // (1) android.app.Application
-    if (osClassApplication != null && currentClass.hasSuperclass()
-        && currentClass.getSuperclass().getType().equals(osClassApplication.getType()))
+    if (osClassApplication != null && currentClass.hasSuperclass() && isSubClass(currentClass, osClassApplication))
       // Scene.v().getOrMakeFastHierarchy().canStoreType(currentClass.getType(), osClassApplication.getType()))
       ctype = ComponentType.Application;
     // (2) android.app.Activity
-    else if (osClassActivity != null && currentClass.hasSuperclass()
-        && currentClass.getSuperclass().getType().equals(osClassActivity.getType()))
+    else if (osClassActivity != null && currentClass.hasSuperclass() && isSubClass(currentClass, osClassActivity))
       // Scene.v().getOrMakeFastHierarchy().canStoreType(currentClass.getType(), osClassActivity.getType()))
       ctype = ComponentType.Activity;
     // (3) android.app.Service
-    else if (osClassService != null && currentClass.hasSuperclass()
-        && currentClass.getSuperclass().getType().equals(osClassService.getType()))
+    else if (osClassService != null && currentClass.hasSuperclass() && isSubClass(currentClass, osClassService))
       // Scene.v().getOrMakeFastHierarchy().canStoreType(currentClass.getType(), osClassService.getType()))
       ctype = ComponentType.Service;
     // (4) android.app.BroadcastReceiver
-    else if (osClassFragment != null && currentClass.hasSuperclass()
-        && currentClass.getSuperclass().getType().equals(osClassFragment.getType()))
+    else if (osClassFragment != null && currentClass.hasSuperclass() && isSubClass(currentClass, osClassFragment))
       // Scene.v().getOrMakeFastHierarchy().canStoreType(currentClass.getType(), osClassFragment.getType()))
       ctype = ComponentType.Fragment;
     else if (osClassSupportFragment != null && currentClass.hasSuperclass()
-        && currentClass.getSuperclass().getType().equals(osClassSupportFragment.getType()))
+        && isSubClass(currentClass, osClassSupportFragment))
       // Scene.v().getOrMakeFastHierarchy().canStoreType(currentClass.getType(), osClassSupportFragment.getType()))
       ctype = ComponentType.Fragment;
     // (5) android.app.BroadcastReceiver
     else if (osClassBroadcastReceiver != null && currentClass.hasSuperclass()
-        && currentClass.getSuperclass().getType().equals(osClassBroadcastReceiver.getType()))
+        && isSubClass(currentClass, osClassBroadcastReceiver))
       // Scene.v().getOrMakeFastHierarchy().canStoreType(currentClass.getType(), osClassBroadcastReceiver.getType()))
       ctype = ComponentType.BroadcastReceiver;
     // (6) android.app.ContentProvider
     else if (osClassContentProvider != null && currentClass.hasSuperclass()
-        && currentClass.getSuperclass().getType().equals(osClassContentProvider.getType()))
+        && isSubClass(currentClass, osClassContentProvider))
       // Scene.v().getOrMakeFastHierarchy().canStoreType(currentClass.getType(), osClassContentProvider.getType()))
       ctype = ComponentType.ContentProvider;
     // (7) com.google.android.gcm.GCMBaseIntentService
     else if (osClassGCMBaseIntentService != null && currentClass.hasSuperclass()
-        && currentClass.getSuperclass().getType().equals(osClassGCMBaseIntentService.getType()))
+        && isSubClass(currentClass, osClassGCMBaseIntentService))
       // Scene.v().getOrMakeFastHierarchy().canStoreType(currentClass.getType(), osClassGCMBaseIntentService.getType()))
       ctype = ComponentType.GCMBaseIntentService;
     // (8) com.google.android.gms.gcm.GcmListenerService
     else if (osClassGCMListenerService != null && currentClass.hasSuperclass()
-        && currentClass.getSuperclass().getType().equals(osClassGCMListenerService.getType()))
+        && isSubClass(currentClass, osClassGCMListenerService))
       // Scene.v().getOrMakeFastHierarchy().canStoreType(currentClass.getType(), osClassGCMListenerService.getType()))
       ctype = ComponentType.GCMListenerService;
     // (9) android.content.ServiceConnection
     else if (osInterfaceServiceConnection != null && currentClass.hasSuperclass()
-        && currentClass.getSuperclass().getType().equals(osInterfaceServiceConnection.getType()))
+        && isSubClass(currentClass, osInterfaceServiceConnection))
       // Scene.v().getOrMakeFastHierarchy().canStoreType(currentClass.getType(), osInterfaceServiceConnection.getType()))
       ctype = ComponentType.ServiceConnection;
     componentTypeCache.put(currentClass, ctype);
