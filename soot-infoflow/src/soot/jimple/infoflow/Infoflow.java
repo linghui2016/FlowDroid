@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,6 +124,18 @@ public class Infoflow extends AbstractInfoflow {
   protected SootMethod dummyMainMethod = null;
   protected Collection<SootMethod> additionalEntryPointMethods = null;
 
+  private Set<String> sourceCodePath;// LSP
+
+  public void setSourceCodePath(Set<String> sourceCodePath) {
+    this.sourceCodePath = sourceCodePath;
+  }
+
+  private Consumer<Set<String>> sourceCodeConsumer;// LSP
+
+  public void setSourceCodeConsumer(Consumer<Set<String>> sourceCodeConsumer) {
+    this.sourceCodeConsumer = sourceCodeConsumer;
+  }
+
   /**
    * Creates a new instance of the InfoFlow class for analyzing plain Java code without any references to APKs or the Android
    * SDK.
@@ -168,6 +181,7 @@ public class Infoflow extends AbstractInfoflow {
     }
 
     initializeSoot(appPath, libPath, entryPointCreator.getRequiredClasses());
+    sourceCodeConsumer.accept(sourceCodePath);
 
     // entryPoints are the entryPoints required by Soot to calculate Graph -
     // if there is no main method, we have to create a new main method and
